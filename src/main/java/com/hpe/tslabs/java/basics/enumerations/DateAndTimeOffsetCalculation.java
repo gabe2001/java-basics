@@ -74,25 +74,25 @@ public enum DateAndTimeOffsetCalculation
    /**
     * Enum constructor
     *
-    * @param units      name of unit
-    * @param clazz      java.time class
-    * @param methodName to be invoked on clazz
-    * @param valueType  value type used to find method
+    * @param units          name of unit
+    * @param clazz          java.time class
+    * @param methodName     to be invoked on clazz
+    * @param parameterTypes method signature
     */
    DateAndTimeOffsetCalculation(final String units, final Class<?> clazz, final String methodName,
-           final Class<?>... valueType)
+           final Class<?>... parameterTypes)
    {
       Method establishMethod;
       this.units = units;
       try
       {
-         establishMethod = clazz.getDeclaredMethod(methodName, valueType);
+         establishMethod = clazz.getMethod(methodName, parameterTypes);
       }
       catch (final NoSuchMethodException e)
       {
          establishMethod = null;
          final Logger constructorLogger = LoggerFactory.getLogger(DateAndTimeOffsetCalculation.class);
-         constructorLogger.error("Class {} has no method named {}", clazz.getSimpleName(), methodName);
+         constructorLogger.error("Class {} has no method named {}", clazz.getName(), methodName);
       }
       this.method = establishMethod;
    }
@@ -111,19 +111,16 @@ public enum DateAndTimeOffsetCalculation
       try
       {
          Objects.requireNonNull(function.method);
-         if ("years".equalsIgnoreCase(units))
+         switch (units)
          {
-            return ZonedDateTime.parse(from).plus((TemporalAmount) function.method.invoke(null, amount, 0, 0))
-                    .toString();
-         }
-         else if ("months".equalsIgnoreCase((units)))
-         {
-            return ZonedDateTime.parse(from).plus((TemporalAmount) function.method.invoke(null, 0, amount, 0))
-                    .toString();
-         }
-         else
-         {
-            return Instant.parse(from).plus((TemporalAmount) function.method.invoke(null, amount)).toString();
+            case "years":
+               return ZonedDateTime.parse(from).plus((TemporalAmount) function.method.invoke(null, amount, 0, 0))
+                       .toString();
+            case "months":
+               return ZonedDateTime.parse(from).plus((TemporalAmount) function.method.invoke(null, 0, amount, 0))
+                       .toString();
+            default:
+               return Instant.parse(from).plus((TemporalAmount) function.method.invoke(null, amount)).toString();
          }
       }
       catch (final NullPointerException e)
@@ -132,7 +129,7 @@ public enum DateAndTimeOffsetCalculation
       }
       catch (final IllegalAccessException | InvocationTargetException e)
       {
-         logger.error("{}", e.getMessage());
+         logger.error("{}", e.getCause().getMessage());
       }
       return from;
    }
@@ -165,7 +162,7 @@ public enum DateAndTimeOffsetCalculation
       }
       catch (final IllegalAccessException | InvocationTargetException e)
       {
-         logger.error("{}", e.getMessage());
+         logger.error("{}", e.getCause().getMessage());
       }
       return from;
    }
