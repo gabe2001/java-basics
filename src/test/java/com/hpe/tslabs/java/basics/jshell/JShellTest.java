@@ -2,11 +2,12 @@ package com.hpe.tslabs.java.basics.jshell;
 
 import jdk.jshell.JShell;
 import jdk.jshell.SnippetEvent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 /**
  * (C) Copyright 2021 Hewlett Packard Enterprise Development LP

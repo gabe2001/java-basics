@@ -1,17 +1,16 @@
+// (c) Copyright 2021-2022 Hewlett Packard Enterprise Development LP
 package com.hpe.tslabs.java.basics.inheritance;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * (C) Copyright 2021 Hewlett Packard Enterprise Development LP
+ * Class hierarchy and inheritance
  *
  * @author Gabriel Inäbnit - 2021-01-21
  */
@@ -20,13 +19,13 @@ public class SubSuperClassTest
 
    private static Double doubleValue;
 
-   @BeforeClass
+   @BeforeAll
    public static void init()
    {
       doubleValue = Math.random();
    }
 
-   @AfterClass
+   @AfterAll
    public static void destroy()
    {
       doubleValue = null;
@@ -61,19 +60,21 @@ public class SubSuperClassTest
       assertTrue(v.getClass().isAssignableFrom(LocalValue.class));
    }
 
-   @Test(expected = java.lang.ClassCastException.class)
+   @Test //(expected = java.lang.ClassCastException.class)
    public void sub_super_impl_class()
    {
-      ILocalValue v;
-      // demonstration of compile time validation of  sub/super class compatibility
-      // uncomment next line to see IDE/compiler complaining
-      //v = new Value(doubleValue);
+      final ClassCastException thrown = Assertions.assertThrows(ClassCastException.class, () -> {
+         final ILocalValue v;
+         // demonstration of compile time validation of  sub/super class compatibility
+         // uncomment next line to see IDE/compiler complaining
+         //v = new Value(doubleValue);
 
-      // demonstration of runtime error of the above
-      v = (ILocalValue) new Value(doubleValue);
-
-      fail("Casting should have caused an exception");
+         // demonstration of runtime error of the above
+         v = (ILocalValue) new Value(doubleValue);
+      });
    }
+
+
 
    private void value(final IValue v)
    {
