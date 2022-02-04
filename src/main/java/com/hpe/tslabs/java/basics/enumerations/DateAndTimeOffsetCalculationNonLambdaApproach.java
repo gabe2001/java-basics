@@ -8,7 +8,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.DateTimeException;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.Period;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAmount;
@@ -35,7 +34,7 @@ import java.util.Objects;
  * @see <a href="https://stackoverflow.com/questions/39907925/why-instant-does-not-support-operations-with-chronounit-years/49252497">why-instant-does-not-support-operations-with-chronounit-years</a>
  * @see <a href="https://stackoverflow.com/questions/30833582/how-to-calculate-the-number-of-days-in-a-period">how-to-calculate-the-number-of-days-in-a-period</a>
  */
-public enum DateAndTimeOffsetCalculation
+public enum DateAndTimeOffsetCalculationNonLambdaApproach
 {
 
    //@formatter:off
@@ -46,10 +45,8 @@ public enum DateAndTimeOffsetCalculation
    HOURS          ("hours",      Duration.class,   "ofHours",     Long.TYPE),
    DAYS           ("days",       Period.class,     "ofDays",      Integer.TYPE),
    WEEKS          ("weeks",      Period.class,     "ofWeeks",     Integer.TYPE),
-   MONTHS         ("months",     Period.class,     "of",          Integer.TYPE, Integer.TYPE, Integer.TYPE),
-   YEARS          ("years",      Period.class,     "of",          Integer.TYPE, Integer.TYPE, Integer.TYPE),
-   MONTHS_AS_IS   ("monthsAsIs", Period.class,     "ofMonths",    Integer.TYPE),
-   YEARS_AS_IS    ("yearsAsIs",  Period.class,     "ofYears",     Integer.TYPE),
+   MONTHS         ("months",     Period.class,     "ofMonths",    Integer.TYPE),
+   YEARS          ("years",      Period.class,     "ofYears",     Integer.TYPE),
    DURATION       ("duration",   Duration.class,   "parse",       CharSequence.class),
    PERIOD         ("period",     Period.class,     "parse",       CharSequence.class),
    // This will simply log an error
@@ -57,13 +54,14 @@ public enum DateAndTimeOffsetCalculation
    ;
    //@formatter:on
 
-   private static final Logger logger = LoggerFactory.getLogger(DateAndTimeOffsetCalculation.class);
+   private static final Logger logger = LoggerFactory.getLogger(DateAndTimeOffsetCalculationNonLambdaApproach.class);
 
-   private static final Map<String, DateAndTimeOffsetCalculation> lookup = new HashMap<>();
+   private static final Map<String, DateAndTimeOffsetCalculationNonLambdaApproach> lookup = new HashMap<>();
 
    static
    {
-      for (final DateAndTimeOffsetCalculation lambda : EnumSet.allOf(DateAndTimeOffsetCalculation.class))
+      for (final DateAndTimeOffsetCalculationNonLambdaApproach lambda : EnumSet.allOf(
+              DateAndTimeOffsetCalculationNonLambdaApproach.class))
       {
          lookup.put(lambda.units, lambda);
       }
@@ -80,7 +78,7 @@ public enum DateAndTimeOffsetCalculation
     * @param methodName     to be invoked on clazz
     * @param parameterTypes method signature
     */
-   DateAndTimeOffsetCalculation(final String units, final Class<?> clazz, final String methodName,
+   DateAndTimeOffsetCalculationNonLambdaApproach(final String units, final Class<?> clazz, final String methodName,
            final Class<?>... parameterTypes)
    {
       Method establishMethod;
@@ -92,7 +90,7 @@ public enum DateAndTimeOffsetCalculation
       catch (final NoSuchMethodException e)
       {
          establishMethod = null;
-         final Logger constructorLogger = LoggerFactory.getLogger(DateAndTimeOffsetCalculation.class);
+         final Logger constructorLogger = LoggerFactory.getLogger(DateAndTimeOffsetCalculationNonLambdaApproach.class);
          constructorLogger.error("Class {} has no method named {}", clazz.getName(), methodName);
       }
       this.method = establishMethod;
@@ -108,21 +106,11 @@ public enum DateAndTimeOffsetCalculation
     */
    public static String getResultingDateAndTime(final String from, final int amount, final String units)
    {
-      final DateAndTimeOffsetCalculation function = lookup.get(units);
+      final DateAndTimeOffsetCalculationNonLambdaApproach function = lookup.get(units);
       try
       {
          Objects.requireNonNull(function.method);
-         switch (units)
-         {
-            case "years":
-               return ZonedDateTime.parse(from).plus((TemporalAmount) function.method.invoke(null, amount, 0, 0))
-                       .toString();
-            case "months":
-               return ZonedDateTime.parse(from).plus((TemporalAmount) function.method.invoke(null, 0, amount, 0))
-                       .toString();
-            default:
-               return Instant.parse(from).plus((TemporalAmount) function.method.invoke(null, amount)).toString();
-         }
+         return ZonedDateTime.parse(from).plus((TemporalAmount) function.method.invoke(null, amount)).toString();
       }
       catch (final NullPointerException e)
       {
@@ -130,7 +118,7 @@ public enum DateAndTimeOffsetCalculation
       }
       catch (final IllegalAccessException | InvocationTargetException e)
       {
-         logger.error("{}", e.getCause().getMessage());
+         logger.error("Error {} offsetting by {} {}: {}", from, amount, units, e.getMessage());
       }
       return from;
    }
@@ -145,7 +133,7 @@ public enum DateAndTimeOffsetCalculation
     */
    public static String getResultingDateAndTime(final String from, final String period, final String units)
    {
-      final DateAndTimeOffsetCalculation function = lookup.get(units);
+      final DateAndTimeOffsetCalculationNonLambdaApproach function = lookup.get(units);
       try
       {
          switch (function.units)
@@ -163,7 +151,7 @@ public enum DateAndTimeOffsetCalculation
       }
       catch (final IllegalAccessException | InvocationTargetException e)
       {
-         logger.error("{}", e.getCause().getMessage());
+         logger.error("\"{}\" {}", period, e.getCause().getMessage());
       }
       return from;
    }
@@ -187,6 +175,7 @@ public enum DateAndTimeOffsetCalculation
    {
       if (isoPeriod == null || !(isoPeriod.startsWith("P")))
       {
+         logger.error("\"{}\" is not a ISO 8601 formatted period string", isoPeriod);
          return from;
       }
       try
@@ -224,9 +213,19 @@ public enum DateAndTimeOffsetCalculation
       }
       catch (final DateTimeException | ArithmeticException e)
       {
-         logger.error("{}", e.getCause().getMessage());
+         logger.error("Error {} offsetting by {}: {}", from, isoPeriod, e.getMessage());
       }
       return from;
+   }
+
+   /**
+    * Simple enum method
+    *
+    * @return units name
+    */
+   public String getUnits()
+   {
+      return this.units;
    }
 
 }
