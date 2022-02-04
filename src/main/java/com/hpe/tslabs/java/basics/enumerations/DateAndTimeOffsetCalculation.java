@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
@@ -161,6 +162,67 @@ public enum DateAndTimeOffsetCalculation
          logger.error("No parse method exists for {}", units);
       }
       catch (final IllegalAccessException | InvocationTargetException e)
+      {
+         logger.error("{}", e.getCause().getMessage());
+      }
+      return from;
+   }
+
+   /**
+    * Offsetting a given ISO date and time by a given ISO period.
+    * Note: java.time.Period and java.time.Duration are used to handle the full ISO period specification.
+    * <p>
+    * Example ISO periods:
+    * <pre>
+    *    P1Y2M3DT4H5M6.789S
+    *    P1Y2M3D
+    *    P1Y2M3D
+    * </pre>
+    *
+    * @param from      ISO date and time string
+    * @param isoPeriod ISO period string
+    * @return ISO date and time string with period applied
+    */
+   public static String getResultingDateAndTime(final String from, final String isoPeriod)
+   {
+      if (isoPeriod == null || !(isoPeriod.startsWith("P")))
+      {
+         return from;
+      }
+      try
+      {
+         ZonedDateTime result = ZonedDateTime.parse(from);
+         final String[] periodParts = isoPeriod.split("T");
+         // period and duration
+         if (periodParts.length == 2)
+         {
+            final String period = periodParts[0];
+            final String duration = periodParts[1];
+            if (period.length() > 1)
+            {
+               result = result.plus(Period.parse(period));
+            }
+            if (duration.length() > 1)
+            {
+               result = result.plus(Duration.parse("PT" + duration));
+            }
+         }
+         // period or duration
+         else if (periodParts.length == 1)
+         {
+            final String part = periodParts[0];
+            if (part.startsWith("PT"))
+            {
+               result = result.plus(Duration.parse(part));
+            }
+            else
+            {
+               result = result.plus(Period.parse(part));
+            }
+         }
+         return result.toString();
+      }
+      catch (final DateTimeException | ArithmeticException e)
       {
          logger.error("{}", e.getCause().getMessage());
       }

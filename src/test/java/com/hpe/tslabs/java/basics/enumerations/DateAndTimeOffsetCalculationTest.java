@@ -3,10 +3,14 @@ package com.hpe.tslabs.java.basics.enumerations;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
+import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.Period;
+import java.time.ZonedDateTime;
 import java.time.chrono.IsoChronology;
 import java.time.temporal.UnsupportedTemporalTypeException;
 import java.util.Arrays;
@@ -21,12 +25,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class DateAndTimeOffsetCalculationTest
 {
 
-   final String  dateAndTime = "2022-02-02T12:34:56.789Z";
+   final static private Logger logger = LoggerFactory.getLogger(DateAndTimeOffsetCalculationTest.class);
+
+   final String dateAndTime = "2022-02-02T12:34:56.789Z";
 
    @Test
    void add_3_minutes_to_date_and_time()
    {
-      final String resultingDateAndTime = DateAndTimeOffsetCalculation.getResultingDateAndTime(dateAndTime, 3, "minutes");
+      final String resultingDateAndTime = DateAndTimeOffsetCalculation.getResultingDateAndTime(dateAndTime, 3,
+              "minutes");
       assertEquals("2022-02-02T12:37:56.789Z", resultingDateAndTime);
    }
 
@@ -47,21 +54,24 @@ class DateAndTimeOffsetCalculationTest
    @Test
    void add_300_weeks_to_date_and_time()
    {
-      final String resultingDataAndTime = DateAndTimeOffsetCalculation.getResultingDateAndTime(dateAndTime, 300, "weeks");
+      final String resultingDataAndTime = DateAndTimeOffsetCalculation.getResultingDateAndTime(dateAndTime, 300,
+              "weeks");
       assertEquals("2027-11-03T12:34:56.789Z", resultingDataAndTime);
    }
 
    @Test
    void add_3_months_to_date_and_time()
    {
-      final String resultingDataAndTime = DateAndTimeOffsetCalculation.getResultingDateAndTime(dateAndTime, 3, "months");
+      final String resultingDataAndTime = DateAndTimeOffsetCalculation.getResultingDateAndTime(dateAndTime, 3,
+              "months");
       assertEquals("2022-05-02T12:34:56.789Z", resultingDataAndTime);
    }
 
    @Test
    void subtract_3_months_to_date_and_time()
    {
-      final String resultingDataAndTime = DateAndTimeOffsetCalculation.getResultingDateAndTime(dateAndTime, -3, "months");
+      final String resultingDataAndTime = DateAndTimeOffsetCalculation.getResultingDateAndTime(dateAndTime, -3,
+              "months");
       assertEquals("2021-11-02T12:34:56.789Z", resultingDataAndTime);
    }
 
@@ -188,10 +198,66 @@ class DateAndTimeOffsetCalculationTest
    @Test
    void add_non_parseable_period()
    {
-      assertEquals("2020-01-31T12:24:56Z",
-              DateAndTimeOffsetCalculation.getResultingDateAndTime("2020-01-31T12:24:56Z", "I cannot be parsed",
-                      "period"));
+      assertEquals(dateAndTime,
+              DateAndTimeOffsetCalculation.getResultingDateAndTime(dateAndTime, "I cannot be parsed", "period"));
 
+   }
+
+   /**
+    * NOTE: java.time.Period can only parse the date part. The time part will cause a parse error.
+    */
+   @Test
+   void add_iso_period()
+   {
+      assertEquals(dateAndTime,
+              DateAndTimeOffsetCalculation.getResultingDateAndTime(dateAndTime, "P1Y2M3DT4H5M6" + ".789S", "period"));
+
+   }
+
+   @Test
+   void iso_8601_period()
+   {
+      final String isoPeriod = "P1Y2M3DT4H5M6.789S";
+      assertEquals("2023-04-05T16:40:03.578Z",
+              DateAndTimeOffsetCalculation.getResultingDateAndTime(dateAndTime, isoPeriod));
+   }
+
+   @Test
+   void iso_8601_period_duration_only()
+   {
+      final String isoPeriod = "PT4H5M6.789S";
+      assertEquals("2022-02-02T16:40:03.578Z",
+              DateAndTimeOffsetCalculation.getResultingDateAndTime(dateAndTime, isoPeriod));
+   }
+
+   @Test
+   void iso_8601_period_only()
+   {
+      final String isoPeriod = "P1Y2M3D";
+      assertEquals("2023-04-05T12:34:56.789Z",
+              DateAndTimeOffsetCalculation.getResultingDateAndTime(dateAndTime, isoPeriod));
+   }
+
+   @Test
+   void iso_8601_not_even_close()
+   {
+      final String isoPeriod = "A1B2C3D4E5F6";
+      assertEquals(dateAndTime, DateAndTimeOffsetCalculation.getResultingDateAndTime(dateAndTime, isoPeriod));
+   }
+
+   @Test
+   void iso_8601_too_many_ts()
+   {
+      final String isoPeriod = "P1Y2M3DT4H5M6.789STas";
+      assertEquals(dateAndTime, DateAndTimeOffsetCalculation.getResultingDateAndTime(dateAndTime, isoPeriod));
+   }
+
+   @Test
+   void iso_8601_too_many_ts_but_no_harm()
+   {
+      final String isoPeriod = "P1Y2M3DT4H5M6.789ST";
+      assertEquals("2023-04-05T16:40:03.578Z",
+              DateAndTimeOffsetCalculation.getResultingDateAndTime(dateAndTime, isoPeriod));
    }
 
 }
