@@ -1,13 +1,10 @@
-// (c) Copyright 2022 Hewlett-Packard Development Company, L.P.
-package com.hpe.tslabs.java.basics.inheritance;
+package el.dude.java.basics.inheritance;
 
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * com.hpe.tslabs.java.basics.inheritance
- * <p>
  * Author: Gabriel Inäbnit - 2022-02-03
  */
 public class InstanceOfTest

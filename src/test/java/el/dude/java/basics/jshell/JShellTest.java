@@ -1,4 +1,4 @@
-package com.hpe.tslabs.java.basics.jshell;
+package el.dude.java.basics.jshell;
 
 import jdk.jshell.JShell;
 import jdk.jshell.SnippetEvent;
@@ -10,8 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
- * (C) Copyright 2021 Hewlett Packard Enterprise Development LP
- *
  * @author Gabriel Inäbnit - 2021-01-21
  */
 public class JShellTest

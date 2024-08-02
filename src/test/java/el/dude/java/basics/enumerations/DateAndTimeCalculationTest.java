@@ -1,5 +1,4 @@
-// (c) Copyright 2022 Hewlett-Packard Development Company, L.P.
-package com.hpe.tslabs.java.basics.enumerations;
+package el.dude.java.basics.enumerations;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,8 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * com.hpe.tslabs.java.basics.enumerations
- * <p>
  * Author: Gabriel Inäbnit - 2022-02-03
  */
 class DateAndTimeCalculationTest

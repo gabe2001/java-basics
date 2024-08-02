@@ -1,5 +1,4 @@
-// (c) Copyright 2022 Hewlett-Packard Development Company, L.P.
-package com.hpe.tslabs.java.basics.enumerations;
+package el.dude.java.basics.enumerations;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +11,6 @@ import java.time.format.DateTimeParseException;
 import java.util.Objects;
 
 /**
- * com.hpe.tslabs.java.basics.enumerations
- * <p>
  * Author: Gabriel Inäbnit - 2022-02-04
  * <p>
  * We're hiding the tyranny of the choice between Duration and Period.

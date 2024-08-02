@@ -1,5 +1,4 @@
-// (c) Copyright 2021-2022 Hewlett Packard Enterprise Development LP
-package com.hpe.tslabs.java.basics.inheritance;
+package el.dude.java.basics.inheritance;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;

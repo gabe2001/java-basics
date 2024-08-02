@@ -1,5 +1,4 @@
-// (c) Copyright 2022 Hewlett-Packard Development Company, L.P.
-package com.hpe.tslabs.java.basics.enumerations;
+package el.dude.java.basics.enumerations;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * com.hpe.tslabs.java.basics.enumerations
- * <p>
  * Author: Gabriel Inäbnit - 2022-02-03
  * <p>
  * {@link Duration}: {@code PnDTnHnMn.nS}
